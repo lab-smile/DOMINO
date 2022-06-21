@@ -130,20 +130,20 @@ class criterion(nn.Module):#outputs,labels_vector, matrix_penalty):
         target_vector = F.one_hot(target_vector.to(torch.int64), N_classes) #int8 instead of int64, #B * P * N
         
         output_vector = torch.reshape(outputs, (length_targets, N_classes, Npixels)) #B * N * P
-        output_vector = torch.swapaxes(outputs_vector, 0, 1) # N * B * P
+        output_vector = torch.swapaxes(output_vector, 0, 1) # N * B * P
 
         for i in range(length_targets): #B
             for j in range(len(target_vector)): #P
                 target_vectorr = torch.flatten(target_vector[i:i+1, j:j+1, :]).float()  #1 * 1 * N = N
-                target_vectorr = torch.reshape(target_vector, (1,N_classes)) # 1 x N
+                target_vectorr = torch.reshape(target_vectorr, (1,N_classes)) # 1 x N
                 
                 output_vectorr = torch.flatten(output_vector[:, i:i+1, j:j+1]).float()  # N * 1 * 1
-                output_vectorr = torch.reshape(output_vector, (N_classes,1)) # N x 1
-                output_vectorr = torch.exp(output_vector)/torch.sum(torch.exp(output_vector)) #softmax
+                output_vectorr = torch.reshape(output_vectorr, (N_classes,1)) # N x 1
+                output_vectorr = torch.exp(output_vectorr)/torch.sum(torch.exp(output_vector)) #softmax
                 
-                penalty = torch.mm(target_vector,matrix_penalty)   # (1 x N) * (N x N) = 1 x N
+                penalty = torch.mm(target_vectorr,matrix_penalty)   # (1 x N) * (N x N) = 1 x N
                 #penalty_term[B*P] = torch.mm(penalty.float(),output_vector) # (1 x N) * (N x 1) = 1 x 1
-                penalty_term = torch.cat((penalty_term,torch.mm(penalty.float(),output_vector)),-1)
+                penalty_term = torch.cat((penalty_term,torch.mm(penalty.float(),output_vectorr)),-1)
         
         loss_diceCE = DiceCELoss(to_onehot_y=True, softmax=True)
         entropy_term = loss_diceCE(outputs,targets)
