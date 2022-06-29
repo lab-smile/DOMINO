@@ -117,8 +117,8 @@ class criterion(nn.Module):#outputs,labels_vector, matrix_penalty):
     def forward(self, outputs, targets, matrix_penalty=matrix_penalty, N_classes=N_classes, Npixels=Npixels, length_targets=length_targets, total_batch=total_batch):
         
         #currently I set them like this to do each data point rather than whole batch at once
-        penalty_term = torch.zeros(-1).cuda()
-        entropy_term = torch.zeros(-1).cuda()
+        penalty_term = torch.zeros(0).cuda()#-1).cuda()
+        entropy_term = torch.zeros(0).cuda()#-1).cuda()
         matrix_penalty = matrix_penalty.cuda()
 
         #iterate through all labels of batch 
