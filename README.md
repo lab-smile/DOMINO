@@ -16,7 +16,7 @@ Skylar E. Stolte<sup>1</sup>, Kyle Volle<sup>2</sup>, Aprinda Indahlastari<sup>3
 <sup>6</sup> United States Air Force Research Laboratory, Eglin Air Force Base, Florida, USA<br>
 <sup>7</sup> Department of Electrical and Computer Engineering, Herbert Wertheim College ofEngineering, UF, USA<br>
 
-International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022 Oral Talk<br>
+International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022<br>
 [paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | slides | poster | talk 
 
 ## Major results from our work
@@ -67,7 +67,7 @@ Before you training the model, you need to make sure change the following direct
 You can also specify the max iteration number for training. For the iterations = 100, the training progress might take about one hours, and for the iterations = 25,000, the training progress might take about 24 hours. 
 
 ### Testing
-The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with sbatch command:
+The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with the following command, you can also use the pre-trained [models](/models) we provide for testing:
 ```
 sbatch test.sh
 ```
@@ -79,7 +79,7 @@ If you use this code, please cite our papers:
 @InProceedings{stolte2022DOMINO,
   author="Stolte, Skylar E. and Volle, Kyle and Indahlastari, Aprinda and Albizu, Alejandro and Woods, Adam J. and Brink, Kevin and Hale, Matthew and Fang, Ruogu",
   title="DOMINO: Domain-aware Model Calibration in Medical Image Segmentation",
-  booktitle="Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022 Oral Talk",
+  booktitle="Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022",
   year="2022",
   url="https://arxiv.org/abs/2209.06077"
 }
