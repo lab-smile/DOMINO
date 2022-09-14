@@ -47,7 +47,7 @@ After this code is done, you may exit MATLAB and open the terminal to run the ot
 ### Build container
 The DOMINO code uses the MONAI, an open-source foundation. We provide a .sh script to help you to build your own container for running your code.
 
-Run the following code in the terminal, you need tochange the line after --sandbox to your desired writable directory and change the line after --nv to your own directory.
+Run the following code in the terminal, you need to change the line after --sandbox to your desired writable directory and change the line after --nv to your own directory.
 ```
 sbatch building_container_v08.sh
 ```
