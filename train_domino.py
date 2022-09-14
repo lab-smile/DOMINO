@@ -54,8 +54,6 @@ from monai.data import (
     pad_list_data_collate,
 )
 
-#from DOMINO_loss import criterion
-
 #-----------------------------------
 
 #set up starting conditions:
@@ -77,6 +75,7 @@ parser.add_argument("--a_min_value", type=int, default=0, help="minimum image in
 parser.add_argument("--max_iteration", type=int, default=25000, help="number of iterations")
 parser.add_argument("--num_samples", type=int, default=1, help="number of iterations")
 parser.add_argument("--csv_matrixpenalty", type=str, default="/mnt/UNETR_matrixpenalty_v5_2d.csv", help="matrix penalty csv")
+parser.add_argument("--loss_type", type=str, default="DOMINO", help="which loss to use")
 args = parser.parse_args()
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -95,7 +94,6 @@ matrix_vals = matrix_vals.to_numpy()
 ENCODINGS = 3.0 * matrix_vals
 
 #print(ENCODINGS)
-#1 x 12 (12 x 12)
 
 #plt.figure()
 #plt.imshow(ENCODINGS)
@@ -104,12 +102,12 @@ ENCODINGS = 3.0 * matrix_vals
 matrix_penalty = torch.from_numpy(ENCODINGS).to(device)
 matrix_penalty = matrix_penalty.float()
 
-Npixels = args.spatial_size**3#image size #patch_size**3=64x64x64
-length_targets = args.batch_size_train*args.num_samples#batch size #sampling_rate * batch_size =160
-total_batch = Npixels*length_targets#image size * batch size #sampling_rate * batch_size * Npixels
-N_classes = args.N_classes#number_of_classes
+Npixels = args.spatial_size**3 
+length_targets = args.batch_size_train*args.num_samples
+total_batch = Npixels*length_targets
+N_classes = args.N_classes
 
-class criterion(nn.Module):#outputs,labels_vector, matrix_penalty):
+class criterion(nn.Module):
     
     def __init__(self,weight=None, size_average=True):
         super(criterion,self).__init__()
@@ -117,15 +115,9 @@ class criterion(nn.Module):#outputs,labels_vector, matrix_penalty):
     def forward(self, outputs, targets, matrix_penalty=matrix_penalty, N_classes=N_classes, Npixels=Npixels, length_targets=length_targets, total_batch=total_batch):
         
         #currently I set them like this to do each data point rather than whole batch at once
-        penalty_term = torch.zeros(0).cuda()#-1).cuda()
-        entropy_term = torch.zeros(0).cuda()#-1).cuda()
+        penalty_term = torch.zeros(0).cuda()
+        entropy_term = torch.zeros(0).cuda()
         matrix_penalty = matrix_penalty.cuda()
-
-        #iterate through all labels of batch 
-        #soft_outputs = F.softmax(outputs, dim=1)
-        #for i in range(len(outputs)):
-        #    penalty = torch.mm(F.one_hot(targets[i:i+1], 10).float(),matrix_penalty)
-        #    penalty_term[i] = torch.mm(penalty.float(),torch.transpose(soft_outputs[i:i+1, :], 0, 1))
         
         target_vector = torch.reshape(targets, (length_targets, Npixels)) # B * P
         target_vector = F.one_hot(target_vector.to(torch.int64), N_classes) #int8 instead of int64, #B * P * N
@@ -140,17 +132,16 @@ class criterion(nn.Module):#outputs,labels_vector, matrix_penalty):
                 
                 output_vectorr = torch.flatten(output_vector[:, i:i+1, j:j+1]).float()  # N * 1 * 1
                 output_vectorr = torch.reshape(output_vectorr, (N_classes,1)) # N x 1
-                output_vectorr = torch.exp(output_vectorr)/torch.sum(torch.exp(output_vector)) #softmax
+                output_vectorr = torch.exp(output_vectorr)/torch.sum(torch.exp(output_vector)) 
                 
                 penalty = torch.mm(target_vectorr,matrix_penalty)   # (1 x N) * (N x N) = 1 x N
-                #penalty_term[B*P] = torch.mm(penalty.float(),output_vector) # (1 x N) * (N x 1) = 1 x 1
                 penalty_term = torch.cat((penalty_term,torch.mm(penalty.float(),output_vectorr)),-1)
         
         loss_diceCE = DiceCELoss(to_onehot_y=True, softmax=True)
         entropy_term = loss_diceCE(outputs,targets)
         beta = 1.
         total_loss = entropy_term + beta*(torch.sum(penalty_term)/total_batch)
-        return total_loss#/batch_size
+        return total_loss
 
 #------------------------------------
 
@@ -276,7 +267,10 @@ model = nn.DataParallel(
 
 #model = model.to(device)
 
-loss_function = criterion()#DiceCELoss(to_onehot_y=True, softmax=True)
+if args.loss_type=="DOMINO": 
+   loss_function = criterion()
+else:
+   loss_function = DiceCELoss(to_onehot_y=True, softmax=True)
 torch.backends.cudnn.benchmark = True
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-5)
 
