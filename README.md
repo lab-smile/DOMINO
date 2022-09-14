@@ -3,7 +3,21 @@ We address a model called a **domain-aware model calibration method**, nicknamed
 
 ## Paper
 This repository provides the official implemantation of training DOMINO as well as the usage the model DOMINO in the following paper:
-https://arxiv.org/abs/2209.06077
+
+**DOMINO: Domain-aware Model Calibration in Medical Image Segmentation**
+
+Skylar E. Stolte<sup>1</sup>, Kyle Volle<sup>2</sup>, Aprinda Indahlastari<sup>3,4</sup>, Alejandro Albizu<sup>3,5</sup>, Adam J. Woods<sup>3,4,5</sup>, Kevin Brink<sup>6</sup>, Matthew Hale<sup>2</sup>, and Ruogu Fang<sup>1,3,7*</sup>
+
+<sup>1</sup> J. Crayton Pruitt Family Department of Biomedical Engineering, HerbertWertheim College of Engineering, University of Florida (UF), USA<br>
+<sup>2</sup> Department of Mechanical and Aerospace Engineering, Herbert Wertheim Collegeof Engineering, UF, USA<br>
+<sup>3</sup> Center for Cognitive Aging and Memory, McKnight Brain Institute, UF, USA<br>
+<sup>4</sup> Department of Clinical and Health Psychology, College of Public Health andHealth Professions, UF, USA<br>
+<sup>5</sup> Department of Neuroscience, College of Medicine, UF, USA<br>
+<sup>6</sup> United States Air Force Research Laboratory, Eglin Air Force Base, Florida, USA<br>
+<sup>7</sup> Department of Electrical and Computer Engineering, Herbert Wertheim College ofEngineering, UF, USA<br>
+
+International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022 Oral Talk<br>
+[paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | slides | poster | talk 
 
 ## Major results from our work
 
@@ -73,15 +87,6 @@ If you use this code, please cite our papers:
 ## Acknowledgement
 We employ UNETR as our base model from:
 https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
-```
-@InProceedings{hatamizadeh2022unetr,
-  title={Unetr: Transformers for 3d medical image segmentation},
-  author={Hatamizadeh, Ali and Tang, Yucheng and Nath, Vishwesh and Yang, Dong and Myronenko, Andriy and Landman, Bennett and Roth, Holger R and Xu, Daguang},
-  booktitle={Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision},
-  pages={574--584},
-  year={2022}
-}
-```
 ## Contact
 Any discussion, suggestions and questions please contact: [Skylar Stolte](mailto:skylastolte4444@ufl.edu), [Dr. Ruogu Fang](mailto:ruogu.fang@bme.ufl.edu).
 
