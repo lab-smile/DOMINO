@@ -57,6 +57,7 @@ The test progress is very similar to the training progress. You need to change a
 ```
 sbatch runMONAI_test.sh
 ```
+The outputs for each test subject is saved as a mat file.
 
 ## Citation
 If you use this code, please cite our papers:
