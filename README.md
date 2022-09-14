@@ -85,6 +85,11 @@ If you use this code, please cite our papers:
 }
 ```
 ## Acknowledgement
+
+This work was supported by the National Institutes ofHealth/National Institute on Aging (NIA RF1AG071469, NIA R01AG054077),the National Science Foundation (1908299), and the NSF-AFRL INTERN Sup-plement (2130885). 
+
+We acknowledge NVIDIA AI Technology Center (NVAITC)for their suggestions. We also thank Jiaqing Zhang for formatting assistance.
+
 We employ UNETR as our base model from:
 https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
 ## Contact
