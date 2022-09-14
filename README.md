@@ -40,7 +40,7 @@ ImagesTs sub-TsX_T1.nii sub-TsXX_T1.nii ...
 LabelsTr sub-TrX_seg.nii sub-TrXX_seg.nii ...
 LabelsTs sub-TsX_seg.nii sub-TsX_seg.nii ...
 ```
-Maneuver to the /your_data/Data/. Run makeGRACEjson.m
+Maneuver to the /your_data/Data/. Run make_datalist_json.m
 
 After this code is done, you may exit MATLAB and open the terminal to run the other codes.
 
@@ -57,7 +57,7 @@ The output should be a folder named monaicore08 under your desired directory.
 ### Training
 Once the data and the container are ready, you can train the model by using the following command:
 ```
-sbatch runMONAI.sh
+sbatch train.sh
 ```
 Before you training the model, you need to make sure change the following directory:
 - change the first singularity exec -nv to the directory includes monaicore08, for example: /user/DOMINO/monaicore08
@@ -69,7 +69,7 @@ You can also specify the max iteration number for training. For the iterations =
 ### Testing
 The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with sbatch command:
 ```
-sbatch runMONAI_test.sh
+sbatch test.sh
 ```
 The outputs for each test subject is saved as a mat file.
 

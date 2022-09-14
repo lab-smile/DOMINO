@@ -65,7 +65,7 @@ parser.add_argument("--data_dir", type=str, default="/red/nvidia-ai/SkylarStolte
 parser.add_argument("--batch_size_test", type=int, default=1, help="batch size testing data")
 parser.add_argument("--num_gpu", type=int, default=1, help="number of gpus")
 parser.add_argument("--N_classes", type=int, default=12, help="number of tissues classes")
-parser.add_argument("--spatial_size", type=int, default=64, help="one patch dimension")
+parser.add_argument("--spatial_size", type=int, default=256, help="one patch dimension")
 parser.add_argument("--model_load_name", type=str, default="unetr_v5_bfc.pth", help="model to load")
 parser.add_argument("--dataparallel", type=str, default="True", help="did your model use multi-gpu")
 parser.add_argument("--a_max_value", type=int, default=255, help="maximum image intensity")
