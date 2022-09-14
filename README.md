@@ -60,7 +60,8 @@ sbatch runMONAI_test.sh
 
 ## Citation
 If you use this code, please cite our papers:
-```@InProceedings{zhou2019models,
+```
+@InProceedings{stolte2022DOMINO,
   author="Stolte, Skylar E. and Volle, Kyle and Indahlastari, Aprinda and Albizu, Alejandro and Woods, Adam J. and Brink, Kevin and Hale, Matthew and Fang, Ruogu",
   title="DOMINO: Domain-aware Model Calibration in Medical Image Segmentation",
   booktitle="Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022 Oral Talk",
