@@ -1,5 +1,5 @@
 # DOMINO: Domain-aware Model Calibration in Medical Image Segmentation
-We address a model called a **domain-aware model calibration method**, nicknamed **DOMIMO** that leverages the semantic confusability and hierarchical similarity between class labels. Our experiments demonstrate that our DOMINO-calibrated deep neural networks outperform non-calibrated models and state-of-the-art morphometric methods in head image segmentation. Our results show that our method can consistently achieve better calibration, higher accuracy, and faster inference times than these methods, especially on rarer classes. This performance is attributed to our domain-aware regularization to inform semantic model calibration. These findings show the importance of semantic ties between class labels in building confidence in deep learning models. The framework has the potential to improve the trustworthiness and reliability of generic medical image segmentation models.
+We address a model called a **domain-aware model calibration method**, nicknamed **DOMINO** that leverages the semantic confusability and hierarchical similarity between class labels. Our experiments demonstrate that our DOMINO-calibrated deep neural networks outperform non-calibrated models and state-of-the-art morphometric methods in head image segmentation. Our results show that our method can consistently achieve better calibration, higher accuracy, and faster inference times than these methods, especially on rarer classes. This performance is attributed to our domain-aware regularization to inform semantic model calibration. These findings show the importance of semantic ties between class labels in building confidence in deep learning models. The framework has the potential to improve the trustworthiness and reliability of generic medical image segmentation models.
 
 ## Paper
 This repository provides the official implemantation of training DOMINO as well as the usage the model DOMINO in the following paper:
@@ -21,9 +21,9 @@ International Conference on Medical Image Computing and Computer Assisted Interv
 
 ## Major results from our work
 
-
-
-
+1. Our DOMINO methods improve calibration and accuracy in head segmentation problems from T1 MRIs
+2. DOMINO-CM achieves higher Top-1, Top-2, and Top-3 accuracy than DOMINO-HC or an uncalibrated model. This indicates superior regional performance and higher relevance to the non-selected classes (important in calibration).
+3. DOMINO-HC achieves more precise boundary detection when compared to DOMINO-CM or an uncalibrated model. This is important to calibration problems because boundaries are the most uncertain areas in segmentation challenges.
 
 
 ## Usage
