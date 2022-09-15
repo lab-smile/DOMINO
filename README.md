@@ -18,6 +18,7 @@ Skylar E. Stolte<sup>1</sup>, Kyle Volle<sup>2</sup>, Aprinda Indahlastari<sup>3
 
 International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022<br>
 [paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | slides | poster | talk 
+![overview.png](https://s2.loli.net/2022/09/15/4XyMgzcNJVx5QlA.png)
 
 ## Major results from our work
 
