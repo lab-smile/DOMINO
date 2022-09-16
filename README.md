@@ -22,9 +22,38 @@ International Conference on Medical Image Computing and Computer Assisted Interv
 
 ## Major results from our work
 
-1. Our DOMINO methods improve calibration and accuracy in head segmentation problems from T1 MRIs
-2. DOMINO-CM achieves higher Top-1, Top-2, and Top-3 accuracy than DOMINO-HC or an uncalibrated model. This indicates superior regional performance and higher relevance to the non-selected classes (important in calibration).
-3. DOMINO-HC achieves more precise boundary detection when compared to DOMINO-CM or an uncalibrated model. This is important to calibration problems because boundaries are the most uncertain areas in segmentation challenges.
+- Our DOMINO methods improve calibration and accuracy in head segmentation problems from T1 MRIs
+- DOMINO-CM achieves higher Top-1, Top-2, and Top-3 accuracy than DOMINO-HC or an uncalibrated model. This indicates superior regional performance and higher relevance to the non-selected classes (important in calibration).
+- DOMINO-HC achieves more precise boundary detection when compared to DOMINO-CM or an uncalibrated model. This is important to calibration problems because boundaries are the most uncertain areas in segmentation challenges.
+
+<div align="center">
+	<img src="https://s2.loli.net/2022/09/16/iAhjxG9sNYM3Pv4.png" width="700">
+</div>
+
+<div align="center">
+  <b>fig. 1:</b> Top-N Accuracy on 6 classes<br>
+</div>
+<br>
+
+ 
+![image.png](https://s2.loli.net/2022/09/16/jaK2OZsr4Bfhwxm.png)
+<div align="center">
+  <b>fig. 2:</b> (a) Dice scores and (b) Hausdorff distances in 11-class segmentation<br>
+</div>
+<br>
+
+
+
+![image.png](https://s2.loli.net/2022/09/16/xov4uAc5raP7tOH.png)
+<div align="center">
+  <b>fig. 3:</b> Sample image slice for 11-tissue segmentation<br>
+</div>
+<br>
+
+![image.png](https://s2.loli.net/2022/09/16/WAyP9Dhs5RlHJSw.png)
+<div align="center">
+  <b>fig. 4:</b> Sample image slice for 6-tissue segmentation<br>
+</div>
 
 
 ## Usage
@@ -76,7 +105,7 @@ The outputs for each test subject is saved as a mat file.
 
 ### Pre-trained models
 You can also use the pre-trained models we provide for testing, please fill out the following request form before accessing to DOMINO models.
-[Download pre-trained models](https://forms.gle/3GPnXXvWgaM6RZvr5)
+Download pre-trained models [here](https://forms.gle/3GPnXXvWgaM6RZvr5)
 
 ## Citation
 If you use this code, please cite our papers:
