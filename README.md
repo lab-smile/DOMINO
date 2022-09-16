@@ -68,11 +68,15 @@ Before you training the model, you need to make sure change the following direct
 You can also specify the max iteration number for training. For the iterations = 100, the training progress might take about one hours, and for the iterations = 25,000, the training progress might take about 24 hours. 
 
 ### Testing
-The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with the following command, you can also use the pre-trained we provide for testing, please fill out the request [form](https://forms.gle/3GPnXXvWgaM6RZvr5) before accessing to the models:
+The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with the following command: 
 ```
 sbatch test.sh
 ```
 The outputs for each test subject is saved as a mat file.
+
+### Pre-trained models
+You can also use the pre-trained models we provide for testing, please fill out the following request form before accessing to DOMINO models.
+[Download pre-trained models](https://forms.gle/3GPnXXvWgaM6RZvr5)
 
 ## Citation
 If you use this code, please cite our papers:
