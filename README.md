@@ -17,7 +17,7 @@ Skylar E. Stolte<sup>1</sup>, Kyle Volle<sup>2</sup>, Aprinda Indahlastari<sup>3
 <sup>7</sup> Department of Electrical and Computer Engineering, Herbert Wertheim College ofEngineering, UF, USA<br>
 
 International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022<br>
-[paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | slides | poster | talk 
+[paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | [slides](https://github.com/lab-smile/DOMINO/blob/5378ad4ad099efe2700ad75c23ecbc5ce585d266/doc/DOMINO_MICCAI22_PPT.pdf) | [poster](https://github.com/lab-smile/DOMINO/blob/5378ad4ad099efe2700ad75c23ecbc5ce585d266/doc/poster1693.pdf) | [talk](https://www.youtube.com/watch?v=tzdPTrUWlHk) 
 ![overview.png](https://s2.loli.net/2022/09/15/4XyMgzcNJVx5QlA.png)
 
 ## Major results from our work
