@@ -108,7 +108,7 @@ You can also use the pre-trained models we provide for testing, please fill out 
 Download pre-trained models [here](https://forms.gle/3GPnXXvWgaM6RZvr5)
 
 ### Code Ocean
-You can alternatively find the link to our reproducible capsule for our code at Code Ocean. The link to this capsule is as follows: https://codeocean.com/capsule/6022409/tree/v2.
+You can alternatively find the link to our reproducible capsule for our code on Code Ocean. The link to this capsule is as follows: https://codeocean.com/capsule/6022409/tree/v2.
 
 ## Citation
 If you use this code, please cite our papers:
