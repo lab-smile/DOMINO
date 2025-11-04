@@ -8,6 +8,7 @@ DOMINO is a domain-aware model calibration method that leverages semantic confus
 - DOMINO CLI: https://github.com/lab-smile/domino-cli
 - Demo video: https://youtu.be/mKeXWM--xyU
 - Code Ocean capsule: https://codeocean.com/capsule/6022409/tree/v2
+- Request Pretrained Models: https://forms.gle/3GPnXXvWgaM6RZvr5
 
 ## Paper
 This repository provides the official implementation for training and using DOMINO from:
@@ -138,6 +139,7 @@ Outputs: one .mat file per test subject.
 
 ### Pre-trained models
 You can use our pre-trained models for testing. Please fill out the request form before accessing DOMINO models. 
+Download pre-trained models [here](https://forms.gle/3GPnXXvWgaM6RZvr5)
 
 ### Code Ocean
 Reproducible capsule:
