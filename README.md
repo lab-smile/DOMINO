@@ -1,117 +1,162 @@
-# DOMINO: Domain-aware Model Calibration in Medical Image Segmentation
-We create and provide open-source code of a model called a **domain-aware model calibration method**, nicknamed **DOMINO** that leverages the semantic confusability and hierarchical similarity between class labels. Our experiments demonstrate that our DOMINO-calibrated deep neural networks outperform non-calibrated models and state-of-the-art morphometric methods in head image segmentation. Our results show that our method can consistently achieve better calibration, higher accuracy, and faster inference times than these methods, especially on rarer classes. This performance is attributed to our domain-aware regularization to inform semantic model calibration. These findings show the importance of semantic ties between class labels in building confidence in deep learning models. The framework has the potential to improve the trustworthiness and reliability of generic medical image segmentation models.
+# 🧠 DOMINO: Domain-aware Model Calibration in Medical Image Segmentation
+
+DOMINO is a domain-aware model calibration method that leverages semantic confusability and hierarchical similarity between class labels. In head MRI segmentation, DOMINO-calibrated networks outperform non-calibrated models and state-of-the-art morphometric methods, delivering better calibration, higher accuracy, and faster inference—especially on rarer classes. The performance stems from domain-aware regularization that informs semantic model calibration, improving trustworthiness and reliability of medical image segmentation models.
+
+## 🔗 Quick Links
+- Paper (arXiv): https://arxiv.org/abs/2209.06077
+- Base model (MONAI UNETR): https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
+- DOMINO CLI: https://github.com/lab-smile/domino-cli
+- Demo video: https://youtu.be/mKeXWM--xyU
+- Code Ocean capsule: https://codeocean.com/capsule/6022409/tree/v2
 
 ## Paper
-This repository provides the official implemantation of training DOMINO as well as the usage the model DOMINO in the following paper:
+This repository provides the official implementation for training and using DOMINO from:
+- DOMINO: Domain-aware Model Calibration in Medical Image Segmentation  
+  Skylar E. Stolte1, Kyle Volle2, Aprinda Indahlastari3,4, Alejandro Albizu3,5, Adam J. Woods3,4,5, Kevin Brink6, Matthew Hale2, and Ruogu Fang1,3,7*
+  1 J. Crayton Pruitt Family Department of Biomedical Engineering, Herbert Wertheim College of Engineering, University of Florida (UF), USA  
+  2 Department of Mechanical and Aerospace Engineering, Herbert Wertheim College of Engineering, UF, USA  
+  3 Center for Cognitive Aging and Memory, McKnight Brain Institute, UF, USA  
+  4 Department of Clinical and Health Psychology, College of Public Health and Health Professions, UF, USA  
+  5 Department of Neuroscience, College of Medicine, UF, USA  
+  6 United States Air Force Research Laboratory, Eglin Air Force Base, Florida, USA  
+  7 Department of Electrical and Computer Engineering, Herbert Wertheim College of Engineering, UF, USA  
+  MICCAI 2022
 
-**DOMINO: Domain-aware Model Calibration in Medical Image Segmentation**
+## ▶️ Demo Video
+[![DOMINO demo video](https://img.youtube.com/vi/mKeXWM--xyU/hqdefault.jpg)](https://youtu.be/mKeXWM--xyU "Watch the DOMINO demo on YouTube")
 
-Skylar E. Stolte<sup>1</sup>, Kyle Volle<sup>2</sup>, Aprinda Indahlastari<sup>3,4</sup>, Alejandro Albizu<sup>3,5</sup>, Adam J. Woods<sup>3,4,5</sup>, Kevin Brink<sup>6</sup>, Matthew Hale<sup>2</sup>, and Ruogu Fang<sup>1,3,7*</sup>
+## Major Results
+- DOMINO improves calibration and accuracy in head segmentation from T1 MRIs.
+- DOMINO-CM: higher Top-1/Top-2/Top-3 accuracy than DOMINO-HC and an uncalibrated model (better regional performance and awareness of non-selected classes).
+- DOMINO-HC: more precise boundary detection than DOMINO-CM and an uncalibrated model (critical where uncertainty is highest).
 
-<sup>1</sup> J. Crayton Pruitt Family Department of Biomedical Engineering, HerbertWertheim College of Engineering, University of Florida (UF), USA<br>
-<sup>2</sup> Department of Mechanical and Aerospace Engineering, Herbert Wertheim Collegeof Engineering, UF, USA<br>
-<sup>3</sup> Center for Cognitive Aging and Memory, McKnight Brain Institute, UF, USA<br>
-<sup>4</sup> Department of Clinical and Health Psychology, College of Public Health andHealth Professions, UF, USA<br>
-<sup>5</sup> Department of Neuroscience, College of Medicine, UF, USA<br>
-<sup>6</sup> United States Air Force Research Laboratory, Eglin Air Force Base, Florida, USA<br>
-<sup>7</sup> Department of Electrical and Computer Engineering, Herbert Wertheim College ofEngineering, UF, USA<br>
-
-International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) 2022<br>
-[paper](https://arxiv.org/abs/2209.06077) | [code](https://github.com/lab-smile/DOMINO) | [slides](https://github.com/lab-smile/DOMINO/blob/5378ad4ad099efe2700ad75c23ecbc5ce585d266/doc/DOMINO_MICCAI22_PPT.pdf) | [poster](https://github.com/lab-smile/DOMINO/blob/5378ad4ad099efe2700ad75c23ecbc5ce585d266/doc/poster1693.pdf) | [talk](https://www.youtube.com/watch?v=tzdPTrUWlHk) 
-![overview.png](https://s2.loli.net/2022/09/15/4XyMgzcNJVx5QlA.png)
-
-## Major results from our work
-
-- Our DOMINO methods improve calibration and accuracy in head segmentation problems from T1 MRIs
-- DOMINO-CM achieves higher Top-1, Top-2, and Top-3 accuracy than DOMINO-HC or an uncalibrated model. This indicates superior regional performance and higher relevance to the non-selected classes (important in calibration).
-- DOMINO-HC achieves more precise boundary detection when compared to DOMINO-CM or an uncalibrated model. This is important to calibration problems because boundaries are the most uncertain areas in segmentation challenges.
-
-<div align="center">
-	<img src="https://s2.loli.net/2022/09/16/iAhjxG9sNYM3Pv4.png" width="700">
+<!-- Optional figures (avoid tables for dark mode). Update paths if different. -->
+<p align="center">
+  <!-- <img src="Images/fig1_topN.png" alt="Fig. 1: Top-N accuracy on 6 classes" width="70%" /> -->
+  <div align="center">
+  <table style="border-collapse:collapse; width:70%; max-width:800px;">
+    <thead>
+      <tr>
+        <th style="border:1px solid currentColor; padding:8px; text-align:left;">Method</th>
+        <th style="border:1px solid currentColor; padding:8px;">Top‑1</th>
+        <th style="border:1px solid currentColor; padding:8px;">Top‑2</th>
+        <th style="border:1px solid currentColor; padding:8px;">Top‑3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid currentColor; padding:8px; text-align:left;">HEADRECO</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.905</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.977</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.983</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid currentColor; padding:8px; text-align:left;">UNETR‑Base</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.913</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.993</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.998</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid currentColor; padding:8px; text-align:left;">UNETR‑HC</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.924</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.995</td>
+        <td style="border:1px solid currentColor; padding:8px;">0.998</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid currentColor; padding:8px; text-align:left;">UNETR‑CM</td>
+        <td style="border:1px solid currentColor; padding:8px;"><span style="color:#0969da; font-weight:600;">0.928</span></td>
+        <td style="border:1px solid currentColor; padding:8px;"><span style="color:#0969da; font-weight:600;">0.996</span></td>
+        <td style="border:1px solid currentColor; padding:8px;"><span style="color:#0969da; font-weight:600;">0.999</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p><em>Figure 1: Top‑N Accuracy on 6 classes.</em></p>
 </div>
+</p>
+<p align="center"><em>Figure 1: Top-N accuracy on 6 classes.</em></p>
 
-<div align="center">
-  <b>fig. 1:</b> Top-N Accuracy on 6 classes<br>
-</div>
-<br>
+<p align="center">
+  <img src="Images/fig2_dice_hausdorff.png" alt="Fig. 2: Dice scores and Hausdorff distances in 11-class segmentation" width="70%" />
+</p>
+<p align="center"><em>Figure 2: (a) Dice scores and (b) Hausdorff distances in 11-class segmentation.</em></p>
 
- 
-![image.png](https://s2.loli.net/2022/09/16/jaK2OZsr4Bfhwxm.png)
-<div align="center">
-  <b>fig. 2:</b> (a) Dice scores and (b) Hausdorff distances in 11-class segmentation<br>
-</div>
-<br>
+<p align="center">
+  <img src="Images/fig3_sample_11tissue.png" alt="Fig. 3: Sample slice for 11-tissue segmentation" width="70%" />
+</p>
+<p align="center"><em>Figure 3: Sample image slice for 11-tissue segmentation.</em></p>
 
-
-
-![image.png](https://s2.loli.net/2022/09/16/xov4uAc5raP7tOH.png)
-<div align="center">
-  <b>fig. 3:</b> Sample image slice for 11-tissue segmentation<br>
-</div>
-<br>
-
-![image.png](https://s2.loli.net/2022/09/16/WAyP9Dhs5RlHJSw.png)
-<div align="center">
-  <b>fig. 4:</b> Sample image slice for 6-tissue segmentation<br>
-</div>
-
+<p align="center">
+  <img src="Images/fig4_sample_6tissue.png" alt="Fig. 4: Sample slice for 6-tissue segmentation" width="70%" />
+</p>
+<p align="center"><em>Figure 4: Sample image slice for 6-tissue segmentation.</em></p>
 
 ## Usage
-You can find there are two MATLAB codes, you can directly change the directory to your own data. You need to select the DOMINO working folder and add to path before you running these two MATLAB codes. 
 
-To run the combineIn case of you are using different version of MATLAB, if you are using MATLAB 2020b, you need to change line 56 to :
-```
+### MATLAB label preparation
+Two MATLAB scripts are included. Set the DOMINO working folder, add it to the MATLAB path, then:
+
+- For MATLAB 2020b, change line 56 to:
+```matlab
 image(index) = tissue_cond_updated.Labels(k)
 ```
-Then you can run the combine_mask.m. The output should be a Data folder with the following structure: 
-```
-Data ImagesTr sub-TrX_T1.nii sub-TrXX_T1.nii ... 
-ImagesTs sub-TsX_T1.nii sub-TsXX_T1.nii ...
-LabelsTr sub-TrX_seg.nii sub-TrXX_seg.nii ...
-LabelsTs sub-TsX_seg.nii sub-TsX_seg.nii ...
-```
-Maneuver to the /your_data/Data/. Run make_datalist_json.m
 
-After this code is done, you may exit MATLAB and open the terminal to run the other codes.
+Run combine_mask.m. Expected output structure:
+```
+Data
+  ImagesTr   sub-TrX_T1.nii, sub-TrXX_T1.nii, ...
+  ImagesTs   sub-TsX_T1.nii, sub-TsXX_T1.nii, ...
+  LabelsTr   sub-TrX_seg.nii, sub-TrXX_seg.nii, ...
+  LabelsTs   sub-TsX_seg.nii, sub-TsXX_seg.nii, ...
+```
+Navigate to /your_data/Data/ and run make_datalist_json.m. Then exit MATLAB and proceed via terminal.
 
 ### Build container
-The DOMINO code uses the MONAI, an open-source foundation. We provide a .sh script to help you to build your own container for running your code.
-
-Run the following code in the terminal, you need to change the line after --sandbox to your desired writable directory and change the line after --nv to your own directory.
+DOMINO uses MONAI. We provide a script to build a container:
 ```
 sbatch building_container_v08.sh
 ```
-
-The output should be a folder named monaicore08 under your desired directory.
+- Edit the line after --sandbox to a writable directory.
+- Edit the line after --nv to your local directory.  
+Output: a folder named monaicore08 at your chosen location.
 
 ### Training
-Once the data and the container are ready, you can train the model by using the following command:
+Start training once your data and container are ready:
 ```
 sbatch train.sh
 ```
-Before you training the model, you need to make sure change the following directory:
-- change the first singularity exec -nv to the directory includes monaicore08, for example: /user/DOMINO/monaicore08
-- change the line after --bind to the directory includes monaicore08
-- change the data_dir to your data directory
-- change the model name to your desired model name
-You can also specify the max iteration number for training. For the iterations = 100, the training progress might take about one hours, and for the iterations = 25,000, the training progress might take about 24 hours. 
+Before training, update:
+- The first singularity exec -nv path to the monaicore08 directory (e.g., /user/DOMINO/monaicore08)
+- The --bind path to include monaicore08
+- data_dir to your dataset directory
+- model name (model_save_name) to your preferred name
+
+Timing guide: ~1 hour for 100 iterations, ~24 hours for 25,000 iterations.
 
 ### Testing
-The test progress is very similar to the training progress. You need to change all paths and make sure the model_save_name matches your model name in runMONAI.sh. Then running the runMONAI_test.sh with the following command: 
+Testing mirrors training. Ensure all paths are set and model_save_name matches your trained model in runMONAI.sh, then:
 ```
 sbatch test.sh
 ```
-The outputs for each test subject is saved as a mat file.
+Outputs: one .mat file per test subject.
 
 ### Pre-trained models
-You can also use the pre-trained models we provide for testing, please fill out the following request form before accessing to DOMINO models.
-Download pre-trained models [here](https://forms.gle/3GPnXXvWgaM6RZvr5)
+You can use our pre-trained models for testing. Please fill out the request form before accessing DOMINO models. 
 
 ### Code Ocean
-You can alternatively find the link to our reproducible capsule for our code on Code Ocean. The link to this capsule is as follows: https://codeocean.com/capsule/6022409/tree/v2.
+Reproducible capsule:
+- https://codeocean.com/capsule/6022409/tree/v2
+
+## 🛠️ DOMINO CLI (Companion Tool)
+DOMINO CLI processes NIfTI (.nii or .nii.gz) files using the DOMINO model, with batch support. Full usage and examples are in the repo.
+- Link: https://github.com/lab-smile/domino-cli
+
+Prerequisites:
+- Python 3.9+
+- Ability to create virtual environments (python3-venv)
+- Docker (optional)
 
 ## Citation
-If you use this code, please cite our papers:
+If you use this code, please cite:
 ```
 @InProceedings{stolte2022DOMINO,
   author="Stolte, Skylar E. and Volle, Kyle and Indahlastari, Aprinda and Albizu, Alejandro and Woods, Adam J. and Brink, Kevin and Hale, Matthew and Fang, Ruogu",
@@ -121,15 +166,10 @@ If you use this code, please cite our papers:
   url="https://arxiv.org/abs/2209.06077"
 }
 ```
+
 ## Acknowledgement
+Supported by NIH/NIA (RF1AG071469, R01AG054077), NSF (1908299), and the NSF-AFRL INTERN Supplement (2130885). We acknowledge the NVIDIA AI Technology Center (NVAITC) for their suggestions, and thank Jiaqing Zhang for formatting assistance. Base model: UNETR (MONAI) — https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
 
-This work was supported by the National Institutes ofHealth/National Institute on Aging (NIA RF1AG071469, NIA R01AG054077),the National Science Foundation (1908299), and the NSF-AFRL INTERN Sup-plement (2130885). 
-
-We acknowledge NVIDIA AI Technology Center (NVAITC)for their suggestions. We also thank Jiaqing Zhang for formatting assistance.
-
-We employ UNETR as our base model from:
-https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
 ## Contact
-Any discussion, suggestions and questions please contact: [Skylar Stolte](mailto:skylastolte4444@ufl.edu), [Dr. Ruogu Fang](mailto:ruogu.fang@bme.ufl.edu).
-
-*Smart Medical Informatics Learning & Evaluation Laboratory, Dept. of Biomedical Engineering, University of Florida*
+Discussion, suggestions, and questions: Skylar Stolte, Dr. Ruogu Fang  
+Smart Medical Informatics Learning & Evaluation Laboratory, Dept. of Biomedical Engineering, University of Florida
