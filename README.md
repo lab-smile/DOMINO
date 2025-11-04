@@ -73,7 +73,6 @@ This repository provides the official implementation for training and using DOMI
   <p><em>Figure 1: Top‑N Accuracy on 6 classes.</em></p>
 </div>
 </p>
-<p align="center"><em>Figure 1: Top-N accuracy on 6 classes.</em></p>
 
 <p align="center">
   <img src="https://s2.loli.net/2022/09/16/jaK2OZsr4Bfhwxm.png" alt="Fig. 2: Dice scores and Hausdorff distances in 11-class segmentation" width="70%" />
@@ -171,5 +170,8 @@ If you use this code, please cite:
 Supported by NIH/NIA (RF1AG071469, R01AG054077), NSF (1908299), and the NSF-AFRL INTERN Supplement (2130885). We acknowledge the NVIDIA AI Technology Center (NVAITC) for their suggestions, and thank Jiaqing Zhang for formatting assistance. Base model: UNETR (MONAI) — https://github.com/Project-MONAI/research-contributions/tree/main/UNETR
 
 ## Contact
-Discussion, suggestions, and questions: Skylar Stolte, Dr. Ruogu Fang  
-Smart Medical Informatics Learning & Evaluation Laboratory, Dept. of Biomedical Engineering, University of Florida
+Discussion, suggestions, and questions: 
+- Skylar Stolte - [Email](skylastolte4444@phhp.ufl.edu)
+- Dr. Ruogu Fang - [Email](ruogu.fang@bme.ufl.edu)
+
+_Smart Medical Informatics Learning & Evaluation Laboratory, Dept. of Biomedical Engineering, University of Florida_
