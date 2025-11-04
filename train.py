@@ -24,7 +24,7 @@ from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
 from monai.transforms import (
     AsDiscrete,
-    AddChanneld,
+    #AddChanneld,
     Compose,
     CropForegroundd,
     LoadImaged,
@@ -37,14 +37,17 @@ from monai.transforms import (
     RandRotate90d,
     ToTensord,
     SpatialPadd,
-    RandGaussianNoised
+    RandGaussianNoised,
+    EnsureChannelFirstd
 )
 
 from monai.config import print_config
 from monai.metrics import DiceMetric
 from monai.networks.nets import UNETR
+from torch.nn.modules.loss import _Loss
 from monai.optimizers import WarmupCosineSchedule
 #from monai.networks.nets import UNet
+import sklearn.metrics as metrics
 
 from monai.data import (
     DataLoader,
@@ -54,94 +57,56 @@ from monai.data import (
     pad_list_data_collate,
 )
 
+from Losses import DOMINO, DOMINO_PlusPlus
+
 #-----------------------------------
 
 #set up starting conditions:
 
+#Time to process
 start_time = time.time()
 print_config()
 
 # our CLI parser
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_dir", type=str, default="/mnt/training_pairs_v5/", help="directory the dataset is in")
-parser.add_argument("--batch_size_train", type=int, default=1, help="batch size training data")
-parser.add_argument("--batch_size_validation", type=int, default=1, help="batch size validation data")
+parser.add_argument("--batch_size_train", type=int, default=10, help="batch size training data")
+parser.add_argument("--batch_size_validation", type=int, default=10, help="batch size validation data")
 parser.add_argument("--num_gpu", type=int, default=3, help="number of gpus")
 parser.add_argument("--N_classes", type=int, default=12, help="number of tissues classes")
-parser.add_argument("--spatial_size", type=int, default=256, help="one patch dimension")
+parser.add_argument("--spatial_size", type=int, default=64, help="one patch dimension")
 parser.add_argument("--model_save_name", type=str, default="unetr_v5_cos", help="model save name")
 parser.add_argument("--a_max_value", type=int, default=255, help="maximum image intensity")
 parser.add_argument("--a_min_value", type=int, default=0, help="minimum image intensity")
-parser.add_argument("--max_iteration", type=int, default=25000, help="number of iterations")
-parser.add_argument("--num_samples", type=int, default=1, help="number of iterations")
-parser.add_argument("--csv_matrixpenalty", type=str, default="/mnt/UNETR_matrixpenalty_v5_2d.csv", help="matrix penalty csv")
-parser.add_argument("--loss_type", type=str, default="DOMINO", help="which loss to use")
+parser.add_argument("--max_iteration", type=int, default=25001, help="number of iterations")
+parser.add_argument("--num_samples", type=int, default=24, help="number of data samples")
+parser.add_argument("--csv_matrixpenalty", type=str, default="/mnt/hccm.csv", help="matrix penalty csv")
+parser.add_argument("--json_name", type=str, default="dataset", help="name of the file used to map data splits")
 args = parser.parse_args()
 
+#Set GPU
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-split_JSON = "dataset_1.json"
+#Set results path
+resultspath = os.path.join(args.data_dir,args.model_save_name)
+dirExists = os.path.exists(resultspath)
+if dirExists==False:
+  os.mkdir(resultspath)
+
+#JSON file that directs the code to the results
+split_JSON = args.json_name #"dataset_1_old.json"
 datasets = args.data_dir + split_JSON
+num_classes = args.N_classes
 
-#-----------------------------------
+#max training iterations
+maxiter = args.max_iteration
 
-#special loss
-
-matrix_vals = pd.read_csv(args.csv_matrixpenalty, header = None)#, header = 0, index_col = 0) 
-matrix_vals = matrix_vals.to_numpy()
-
-ENCODINGS = 3.0 * matrix_vals
-
-#print(ENCODINGS)
-
-#plt.figure()
-#plt.imshow(ENCODINGS)
-#plt.show()
-
-matrix_penalty = torch.from_numpy(ENCODINGS).to(device)
-matrix_penalty = matrix_penalty.float()
-
-Npixels = args.spatial_size**3 
-length_targets = args.batch_size_train*args.num_samples
-total_batch = Npixels*length_targets
-N_classes = args.N_classes
-
-class criterion(nn.Module):
-    
-    def __init__(self,weight=None, size_average=True):
-        super(criterion,self).__init__()
-    
-    def forward(self, outputs, targets, matrix_penalty=matrix_penalty, N_classes=N_classes, Npixels=Npixels, length_targets=length_targets, total_batch=total_batch):
-        
-        #currently I set them like this to do each data point rather than whole batch at once
-        penalty_term = torch.zeros(0).cuda()
-        entropy_term = torch.zeros(0).cuda()
-        matrix_penalty = matrix_penalty.cuda()
-        
-        target_vector = torch.reshape(targets, (length_targets, Npixels)) # B * P
-        target_vector = F.one_hot(target_vector.to(torch.int64), N_classes) #int8 instead of int64, #B * P * N
-        
-        output_vector = torch.reshape(outputs, (length_targets, N_classes, Npixels)) #B * N * P
-        output_vector = torch.swapaxes(output_vector, 0, 1) # N * B * P
-
-        for i in range(length_targets): #B
-            for j in range(len(target_vector)): #P
-                target_vectorr = torch.flatten(target_vector[i:i+1, j:j+1, :]).float()  #1 * 1 * N = N
-                target_vectorr = torch.reshape(target_vectorr, (1,N_classes)) # 1 x N
-                
-                output_vectorr = torch.flatten(output_vector[:, i:i+1, j:j+1]).float()  # N * 1 * 1
-                output_vectorr = torch.reshape(output_vectorr, (N_classes,1)) # N x 1
-                output_vectorr = torch.exp(output_vectorr)/torch.sum(torch.exp(output_vector)) 
-                
-                penalty = torch.mm(target_vectorr,matrix_penalty)   # (1 x N) * (N x N) = 1 x N
-                penalty_term = torch.cat((penalty_term,torch.mm(penalty.float(),output_vectorr)),-1)
-        
-        loss_diceCE = DiceCELoss(to_onehot_y=True, softmax=True)
-        entropy_term = loss_diceCE(outputs,targets)
-        beta = 1.
-        total_loss = entropy_term + beta*(torch.sum(penalty_term)/total_batch)
-        return total_loss
+#Load matrix penalty
+matrix_vals = pd.read_csv(args.csv_matrixpenalty, header = None, index_col = None)
+matrix_vals = matrix_vals*3.
+matrix_penalty = torch.from_numpy(matrix_vals.to_numpy())
+matrix_penalty = matrix_penalty.float().cuda()
 
 #------------------------------------
 
@@ -150,7 +115,8 @@ class criterion(nn.Module):
 train_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"]),
-        AddChanneld(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        #AddChanneld(keys=["image", "label"]),
         Spacingd(
             keys=["image", "label"],
             pixdim=(1.0, 1.0, 1.0),
@@ -208,7 +174,8 @@ train_transforms = Compose(
 val_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"]),
-        AddChanneld(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"]),
+        #AddChanneld(keys=["image", "label"]),
         Spacingd(
             keys=["image", "label"],
             pixdim=(1.0, 1.0, 1.0),
@@ -245,7 +212,7 @@ val_loader = DataLoader(
 
 #-----------------------------------
 
-#set up gpu device and unetr model
+#set up gpu device and model
 
 #os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -259,18 +226,16 @@ model = nn.DataParallel(
     hidden_size=768,
     mlp_dim=3072,
     num_heads=12,
-    pos_embed="perceptron",
+    #pos_embed="perceptron",
     norm_name="instance",
     res_block=True,
     dropout_rate=0.0,
 ), device_ids=[i for i in range(args.num_gpu)]).cuda()
 
 #model = model.to(device)
+##criterion = DiceCELoss(to_onehot_y=True, softmax=True)##, batch=batch_dice)
 
-if args.loss_type=="DOMINO": 
-   loss_function = criterion()
-else:
-   loss_function = DiceCELoss(to_onehot_y=True, softmax=True)
+loss_function = DOMINO() ##DiceCELoss(to_onehot_y=True, softmax=True) ##DOMINOLoss_fast() ##criterion()#DiceCELoss(to_onehot_y=True, softmax=True)
 torch.backends.cudnn.benchmark = True
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-5)
 
@@ -297,6 +262,7 @@ def validation(epoch_iterator_val):
             epoch_iterator_val.set_description(
                 "Validate (%d / %d Steps) (dice=%2.5f)" % (global_step, 10.0, dice)
             )
+            
         dice_metric.reset()
     mean_dice_val = np.mean(dice_vals)
     return mean_dice_val
@@ -314,7 +280,7 @@ def train(global_step, train_loader, dice_val_best, global_step_best):
         step += 1
         x, y = (batch["image"].cuda(), batch["label"].cuda())
         logit_map = model(x)
-        loss = loss_function(logit_map, y)
+        loss = loss_function(logit_map, y, matrix_penalty)
         loss.backward()
         epoch_loss += loss.item()
         optimizer.step()
@@ -357,8 +323,8 @@ def train(global_step, train_loader, dice_val_best, global_step_best):
 max_iterations = args.max_iteration #25000
 eval_num = math.ceil(args.max_iteration * 0.02)#500
 #WarmupCosineSchedule(optimizer, 10, 500, cycles = 0.5)
-post_label = AsDiscrete(to_onehot=True, num_classes=args.N_classes) 
-post_pred = AsDiscrete(argmax=True, to_onehot=True, num_classes=args.N_classes) 
+post_label = AsDiscrete(to_onehot=args.N_classes) ##True, num_classes=args.N_classes) 
+post_pred = AsDiscrete(argmax=True, to_onehot=args.N_classes) ##True, num_classes=args.N_classes) 
 dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
 global_step = 0
 dice_val_best = 0.0
@@ -385,7 +351,7 @@ plt.plot(x, y)
 
 dict = {'Iteration': x, 'Loss': y}  
 df = pd.DataFrame(dict) 
-df.to_csv(os.path.join(args.data_dir,args.model_save_name + '_Loss.csv'))
+df.to_csv(os.path.join(args.data_dir, args.model_save_name, args.model_save_name + '_Loss.csv'))
 
 plt.subplot(1, 2, 2)
 plt.title("Val Mean Dice")
@@ -394,11 +360,11 @@ y = metric_values
 plt.xlabel("Iteration")
 plt.plot(x, y)
 #plt.show()
-plt.savefig(os.path.join(args.data_dir, args.model_save_name + "_training_metrics.pdf"))
+plt.savefig(os.path.join(args.data_dir, args.model_save_name, args.model_save_name + "_training_metrics.pdf"))
 
 dict = {'Iteration': x, 'Dice': y}  
 df = pd.DataFrame(dict) 
-df.to_csv(os.path.join(args.data_dir,args.model_save_name + '_ValidationDice.csv'))
+df.to_csv(os.path.join(args.data_dir, args.model_save_name, args.model_save_name + '_ValidationDice.csv'))
 
 #------------------------------------
 

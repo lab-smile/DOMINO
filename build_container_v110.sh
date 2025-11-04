@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=build_container  
 #SBATCH --mail-type=END,FAIL          
-#SBATCH --mail-user=skylastolte4444@ufl.edu  
+#SBATCH --mail-user=<email>
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=30gb
@@ -12,6 +12,7 @@ date;hostname;pwd
 module load singularity
 
 # build a Singularity sandbox container (container in a writable directory) from MONAI Core docker image
-singularity build --sandbox /red/nvidia-ai/SkylarStolte/monaicore08/ docker://projectmonai/monai:0.8.1
+singularity build --sandbox <directory location> docker://projectmonai/monai:1.1.0
+
 # check nsys environment
-singularity exec --nv /red/nvidia-ai/SkylarStolte/monaicore08 nsys status -e
+singularity exec --nv <> nsys status -e
