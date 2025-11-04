@@ -22,8 +22,6 @@ This repository provides the official implementation for training and using DOMI
   7 Department of Electrical and Computer Engineering, Herbert Wertheim College of Engineering, UF, USA  
   MICCAI 2022
 
-## ▶️ Demo Video
-[![DOMINO demo video](https://img.youtube.com/vi/mKeXWM--xyU/hqdefault.jpg)](https://youtu.be/mKeXWM--xyU "Watch the DOMINO demo on YouTube")
 
 ## Major Results
 - DOMINO improves calibration and accuracy in head segmentation from T1 MRIs.
@@ -153,6 +151,9 @@ Prerequisites:
 - Python 3.9+
 - Ability to create virtual environments (python3-venv)
 - Docker (optional)
+
+#### ▶️ Demo Video
+[![DOMINO demo video](https://img.youtube.com/vi/mKeXWM--xyU/hqdefault.jpg)](https://youtu.be/mKeXWM--xyU "Watch the DOMINO demo on YouTube")
 
 ## Citation
 If you use this code, please cite:
