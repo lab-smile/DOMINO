@@ -31,8 +31,8 @@ This repository provides the official implementation for training and using DOMI
 <!-- Optional figures (avoid tables for dark mode). Update paths if different. -->
 <p align="center">
   <!-- <img src="Images/fig1_topN.png" alt="Fig. 1: Top-N accuracy on 6 classes" width="70%" /> -->
-  <div align="center">
-  <table style="border-collapse:collapse; width:70%; max-width:800px;">
+<div align="center">
+  <table style="border-collapse:collapse; width:75%; max-width:880px;">
     <thead>
       <tr>
         <th style="border:1px solid currentColor; padding:8px; text-align:left;">Method</th>
@@ -68,7 +68,7 @@ This repository provides the official implementation for training and using DOMI
       </tr>
     </tbody>
   </table>
-  <p><em>Figure 1: Top‑N Accuracy on 6 classes.</em></p>
+  <p><em>Figure 1: Top‑N accuracy on 6 classes.</em></p>
 </div>
 </p>
 
