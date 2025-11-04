@@ -38,6 +38,7 @@ from monai.transforms import (
     ToTensord,
     SpatialPadd,
     RandGaussianNoised,
+    ScaleIntensityd,
     EnsureChannelFirstd
 )
 
@@ -123,14 +124,15 @@ train_transforms = Compose(
             mode=("bilinear", "nearest"),
         ),
         Orientationd(keys=["image", "label"], axcodes="RAS"),
-        ScaleIntensityRanged(
-            keys=["image"],
-            a_min=args.a_min_value,
-            a_max=args.a_max_value, #my original data is in UINT8
-            b_min=0.0,
-            b_max=1.0,
-            clip=True,
-        ),
+        #ScaleIntensityRanged(
+        #    keys=["image"],
+        #    a_min=args.a_min_value,
+        #    a_max=args.a_max_value, #my original data is in UINT8
+        #    b_min=0.0,
+        #    b_max=1.0,
+        #    clip=True,
+        #),
+	ScaleIntensityd(keys=["image"]),
         #CropForegroundd(keys=["image", "label"], source_key="image"), #can crop data since taking patches that are less than full
         RandCropByPosNegLabeld(
             keys=["image", "label"],

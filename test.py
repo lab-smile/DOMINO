@@ -36,6 +36,7 @@ from monai.transforms import (
     RandRotate90d,
     ToTensord,
     SpatialPadd,
+    ScaleIntensityd
     RandGaussianNoised
 )
 
@@ -91,10 +92,11 @@ test_transforms = Compose(
             mode=("bilinear"),
         ),
         Orientationd(keys=["image"], axcodes="RAS"),
-        ScaleIntensityRanged(
-            keys=["image"], a_min=args.a_min_value, a_max=args.a_max_value, b_min=0.0, b_max=1.0, clip=True
-        ),
-        #CropForegroundd(keys=["image", "label"], source_key="image"),
+        #ScaleIntensityRanged(
+        #    keys=["image"], a_min=args.a_min_value, a_max=args.a_max_value, b_min=0.0, b_max=1.0, clip=True
+        #),
+        ScaleIntensityd(keys=["image"]),
+	#CropForegroundd(keys=["image", "label"], source_key="image"),
         ToTensord(keys=["image"]),
     ]
 )
