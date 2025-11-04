@@ -76,17 +76,17 @@ This repository provides the official implementation for training and using DOMI
 <p align="center"><em>Figure 1: Top-N accuracy on 6 classes.</em></p>
 
 <p align="center">
-  <img src="Images/fig2_dice_hausdorff.png" alt="Fig. 2: Dice scores and Hausdorff distances in 11-class segmentation" width="70%" />
+  <img src="https://s2.loli.net/2022/09/16/jaK2OZsr4Bfhwxm.png" alt="Fig. 2: Dice scores and Hausdorff distances in 11-class segmentation" width="70%" />
 </p>
 <p align="center"><em>Figure 2: (a) Dice scores and (b) Hausdorff distances in 11-class segmentation.</em></p>
 
 <p align="center">
-  <img src="Images/fig3_sample_11tissue.png" alt="Fig. 3: Sample slice for 11-tissue segmentation" width="70%" />
+  <img src="https://s2.loli.net/2022/09/16/xov4uAc5raP7tOH.png" alt="Fig. 3: Sample slice for 11-tissue segmentation" width="70%" />
 </p>
 <p align="center"><em>Figure 3: Sample image slice for 11-tissue segmentation.</em></p>
 
 <p align="center">
-  <img src="Images/fig4_sample_6tissue.png" alt="Fig. 4: Sample slice for 6-tissue segmentation" width="70%" />
+  <img src="https://s2.loli.net/2022/09/16/WAyP9Dhs5RlHJSw.png" alt="Fig. 4: Sample slice for 6-tissue segmentation" width="70%" />
 </p>
 <p align="center"><em>Figure 4: Sample image slice for 6-tissue segmentation.</em></p>
 
