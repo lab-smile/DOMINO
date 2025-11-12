@@ -5,60 +5,49 @@
 #standard packages - 
 
 import os
-import shutil
-import tempfile
-import matplotlib.pyplot as plt
-import numpy as np
-from tqdm import tqdm
-import torch
-import torch.nn as nn
 import time
-import argparse
 import math
+import torch
+import argparse
+import numpy as np
 import pandas as pd
-import torch.nn.functional as F
+from tqdm import tqdm
+import torch.nn as nn
+import matplotlib.pyplot as plt
 
 #load monai functions - 
 
-from monai.losses import DiceCELoss
 from monai.inferers import sliding_window_inference
 from monai.transforms import (
-    AsDiscrete,
-    #AddChanneld,
     Compose,
-    CropForegroundd,
+    Spacingd,
+    RandFlipd,
+    ToTensord,
+    AsDiscrete,
     LoadImaged,
     Orientationd,
-    RandFlipd,
-    RandCropByPosNegLabeld,
+    RandRotate90d,
+    ScaleIntensityd,
+    RandGaussianNoised,
+    EnsureChannelFirstd,
     RandShiftIntensityd,
     ScaleIntensityRanged,
-    Spacingd,
-    RandRotate90d,
-    ToTensord,
-    SpatialPadd,
-    RandGaussianNoised,
-    ScaleIntensityd,
-    EnsureChannelFirstd
+    RandCropByPosNegLabeld
 )
 
 from monai.config import print_config
 from monai.metrics import DiceMetric
 from monai.networks.nets import UNETR
-from torch.nn.modules.loss import _Loss
-from monai.optimizers import WarmupCosineSchedule
-#from monai.networks.nets import UNet
-import sklearn.metrics as metrics
 
 from monai.data import (
-    DataLoader,
-    load_decathlon_datalist,
-    decollate_batch,
     Dataset,
+    DataLoader,
+    decollate_batch,
     pad_list_data_collate,
+    load_decathlon_datalist
 )
 
-from Losses import DOMINO, DOMINO_PlusPlus
+from Losses import DOMINO
 
 #-----------------------------------
 
@@ -82,7 +71,7 @@ parser.add_argument("--a_min_value", type=int, default=0, help="minimum image in
 parser.add_argument("--max_iteration", type=int, default=25001, help="number of iterations")
 parser.add_argument("--num_samples", type=int, default=24, help="number of data samples")
 parser.add_argument("--csv_matrixpenalty", type=str, default="/mnt/hccm.csv", help="matrix penalty csv")
-parser.add_argument("--json_name", type=str, default="dataset", help="name of the file used to map data splits")
+parser.add_argument("--json_name", type=str, default="dataset.json", help="name of the file used to map data splits")
 args = parser.parse_args()
 
 #Set GPU
@@ -91,13 +80,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #Set results path
 resultspath = os.path.join(args.data_dir,args.model_save_name)
-dirExists = os.path.exists(resultspath)
-if dirExists==False:
-  os.mkdir(resultspath)
+os.makedirs(resultspath, exist_ok=True)
 
 #JSON file that directs the code to the results
 split_JSON = args.json_name #"dataset_1_old.json"
-datasets = args.data_dir + split_JSON
+datasets = os.path.join(args.data_dir, split_JSON)
+
 num_classes = args.N_classes
 
 #max training iterations
@@ -117,23 +105,13 @@ train_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"]),
         EnsureChannelFirstd(keys=["image", "label"]),
-        #AddChanneld(keys=["image", "label"]),
         Spacingd(
             keys=["image", "label"],
             pixdim=(1.0, 1.0, 1.0),
             mode=("bilinear", "nearest"),
         ),
         Orientationd(keys=["image", "label"], axcodes="RAS"),
-        #ScaleIntensityRanged(
-        #    keys=["image"],
-        #    a_min=args.a_min_value,
-        #    a_max=args.a_max_value, #my original data is in UINT8
-        #    b_min=0.0,
-        #    b_max=1.0,
-        #    clip=True,
-        #),
-	ScaleIntensityd(keys=["image"]),
-        #CropForegroundd(keys=["image", "label"], source_key="image"), #can crop data since taking patches that are less than full
+	    ScaleIntensityd(keys=["image"]),
         RandCropByPosNegLabeld(
             keys=["image", "label"],
             label_key="label",
@@ -177,7 +155,6 @@ val_transforms = Compose(
     [
         LoadImaged(keys=["image", "label"]),
         EnsureChannelFirstd(keys=["image", "label"]),
-        #AddChanneld(keys=["image", "label"]),
         Spacingd(
             keys=["image", "label"],
             pixdim=(1.0, 1.0, 1.0),
@@ -187,7 +164,6 @@ val_transforms = Compose(
         ScaleIntensityRanged(
             keys=["image"], a_min=args.a_min_value, a_max=args.a_max_value, b_min=0.0, b_max=1.0, clip=True
         ),
-        #CropForegroundd(keys=["image", "label"], source_key="image"),
         ToTensord(keys=["image", "label"]),
     ]
 )
@@ -214,13 +190,7 @@ val_loader = DataLoader(
 
 #-----------------------------------
 
-#set up gpu device and model
-
-#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-model = nn.DataParallel(
-    UNETR(
+base_model = UNETR(
     in_channels=1,
     out_channels=args.N_classes, #12 for all tissues
     img_size=(args.spatial_size, args.spatial_size, args.spatial_size),
@@ -228,16 +198,21 @@ model = nn.DataParallel(
     hidden_size=768,
     mlp_dim=3072,
     num_heads=12,
-    #pos_embed="perceptron",
+    # pos_embed="perceptron",
     norm_name="instance",
     res_block=True,
     dropout_rate=0.0,
-), device_ids=[i for i in range(args.num_gpu)]).cuda()
+)
 
-#model = model.to(device)
-##criterion = DiceCELoss(to_onehot_y=True, softmax=True)##, batch=batch_dice)
+# Wrap with DataParallel only when CUDA is available and multiple GPUs requested.
+if device.type == "cuda" and args.num_gpu > 1 and torch.cuda.is_available():
+    model = nn.DataParallel(base_model, device_ids=[i for i in range(args.num_gpu)])
+    model = model.to(device)
+else:
+    # keep plain model for CPU or single-GPU runs
+    model = base_model.to(device)
 
-loss_function = DOMINO() ##DiceCELoss(to_onehot_y=True, softmax=True) ##DOMINOLoss_fast() ##criterion()#DiceCELoss(to_onehot_y=True, softmax=True)
+loss_function = DOMINO() 
 torch.backends.cudnn.benchmark = True
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-5)
 
@@ -290,9 +265,7 @@ def train(global_step, train_loader, dice_val_best, global_step_best):
         epoch_iterator.set_description(
             "Training (%d / %d Steps) (loss=%2.5f)" % (global_step, max_iterations, loss)
         )
-        if (
-            global_step % eval_num == 0 and global_step != 0
-        ) or global_step == max_iterations:
+        if ( global_step % eval_num == 0 and global_step != 0 ) or global_step == max_iterations:
             epoch_iterator_val = tqdm(
                 val_loader, desc="Validate (X / X Steps) (dice=X.X)", dynamic_ncols=True
             )
