@@ -5,52 +5,33 @@
 #standard packages - 
 
 import os
-import shutil
-import tempfile
-import matplotlib.pyplot as plt
-import numpy as np
-from tqdm import tqdm
-import torch
-import torch.nn as nn
 import time
+import torch
 import argparse
-from scipy.io import savemat
-
+import numpy as np
+import torch.nn as nn
+import nibabel as nib
 #load monai functions - 
 
 from monai.losses import DiceCELoss
+from monai.config import print_config
+from monai.networks.nets import UNETR
 from monai.inferers import sliding_window_inference
+
 from monai.transforms import (
-    AsDiscrete,
-    #AddChanneld,
-    EnsureChannelFirstd,
     Compose,
-    CropForegroundd,
+    Spacingd,
+    ToTensord,
     LoadImaged,
     Orientationd,
-    RandFlipd,
-    RandCropByPosNegLabeld,
-    RandShiftIntensityd,
-    ScaleIntensityRanged,
-    Spacingd,
-    RandRotate90d,
-    ToTensord,
-    SpatialPadd,
-    ScaleIntensityd
-    RandGaussianNoised
+    ScaleIntensityd,
+    EnsureChannelFirstd
 )
-
-from monai.config import print_config
-from monai.metrics import DiceMetric
-from monai.networks.nets import UNETR
-#from monai.networks.nets import UNet
-
 from monai.data import (
     DataLoader,
-    load_decathlon_datalist,
-    decollate_batch,
     Dataset,
     pad_list_data_collate,
+    load_decathlon_datalist,
 )
 
 #-----------------------------------
@@ -62,16 +43,15 @@ print_config()
 
 # our CLI parser
 parser = argparse.ArgumentParser()
-parser.add_argument("--data_dir", type=str, default="/red/nvidia-ai/SkylarStolte/training_pairs_v5_bfc/", help="directory the dataset is in")
-parser.add_argument("--batch_size_test", type=int, default=1, help="batch size testing data")
 parser.add_argument("--num_gpu", type=int, default=1, help="number of gpus")
-parser.add_argument("--N_classes", type=int, default=12, help="number of tissues classes")
 parser.add_argument("--spatial_size", type=int, default=256, help="one patch dimension")
-parser.add_argument("--model_load_name", type=str, default="unetr_v5_bfc.pth", help="model to load")
-parser.add_argument("--dataparallel", type=str, default="True", help="did your model use multi-gpu")
-parser.add_argument("--a_max_value", type=int, default=255, help="maximum image intensity")
 parser.add_argument("--a_min_value", type=int, default=0, help="minimum image intensity")
-parser.add_argument("--json_name", type=str, default="dataset", help="name of the file used to map data splits")
+parser.add_argument("--N_classes", type=int, default=12, help="number of tissues classes")
+parser.add_argument("--a_max_value", type=int, default=255, help="maximum image intensity")
+parser.add_argument("--batch_size_test", type=int, default=1, help="batch size testing data")
+parser.add_argument("--model_load_name", type=str, default="unetr_v5_bfc.pth", help="model to load")
+parser.add_argument("--data_dir", type=str, default="/path/to/data/", help="directory the dataset is in")
+parser.add_argument("--json_name", type=str, default="dataset.json", help="name of the file used to map data splits")
 args = parser.parse_args()
 
 split_JSON = args.json_name #"dataset_1.json"
@@ -84,7 +64,6 @@ datasets = args.data_dir + split_JSON
 test_transforms = Compose(
     [
         LoadImaged(keys=["image"]),
-        #AddChanneld(keys=["image"]),
         EnsureChannelFirstd(keys=["image"]),
         Spacingd(
             keys=["image"],
@@ -92,11 +71,7 @@ test_transforms = Compose(
             mode=("bilinear"),
         ),
         Orientationd(keys=["image"], axcodes="RAS"),
-        #ScaleIntensityRanged(
-        #    keys=["image"], a_min=args.a_min_value, a_max=args.a_max_value, b_min=0.0, b_max=1.0, clip=True
-        #),
         ScaleIntensityd(keys=["image"]),
-	#CropForegroundd(keys=["image", "label"], source_key="image"),
         ToTensord(keys=["image"]),
     ]
 )
@@ -115,47 +90,31 @@ test_loader = DataLoader(
 )
 
 #-----------------------------------
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #set up gpu device and unetr model
+base_model = UNETR(
+    in_channels=1,
+    out_channels=args.N_classes, #12 for all tissues
+    img_size=(args.spatial_size, args.spatial_size, args.spatial_size),
+    feature_size=16, 
+    hidden_size=768,
+    mlp_dim=3072,
+    num_heads=12,
+    #pos_embed="perceptron",
+    norm_name="instance",
+    res_block=True,
+    dropout_rate=0.0,
+)
 
-#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-if args.dataparallel == "True":
-
-  model = nn.DataParallel(
-      UNETR(
-      in_channels=1,
-      out_channels=args.N_classes, #12 for all tissues
-      img_size=(args.spatial_size, args.spatial_size, args.spatial_size),
-      feature_size=16, 
-      hidden_size=768,
-      mlp_dim=3072,
-      num_heads=12,
-      #pos_embed="perceptron",
-      norm_name="instance",
-      res_block=True,
-      dropout_rate=0.0,
-  ), device_ids=[i for i in range(args.num_gpu)]).cuda()
-  
-elif args.dataparallel == "False":
-
-  os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-  
-  model = UNETR(
-      in_channels=1,
-      out_channels=args.N_classes, #12 for all tissues
-      img_size=(args.spatial_size, args.spatial_size, args.spatial_size),
-      feature_size=16, 
-      hidden_size=768,
-      mlp_dim=3072,
-      num_heads=12,
-      pos_embed="perceptron",
-      norm_name="instance",
-      res_block=True,
-      dropout_rate=0.0,
-  ).to(device)
+# Wrap with DataParallel only when CUDA is available and multiple GPUs requested.
+if device.type == "cuda" and args.num_gpu > 1 and torch.cuda.is_available():
+    model = nn.DataParallel(base_model, device_ids=[i for i in range(args.num_gpu)])
+    model = model.to(device)
+else:
+    # keep plain model for CPU or single-GPU runs
+    model = base_model.to(device)
 
 loss_function = DiceCELoss(to_onehot_y=True, softmax=True)
 torch.backends.cudnn.benchmark = True
@@ -172,8 +131,6 @@ ModelName = os.path.splitext(os.path.basename(args.model_load_name))[0]
 save_dir = os.path.join(args.data_dir, "TestResults", ModelName)
 # Create directories if they don’t exist
 os.makedirs(save_dir, exist_ok=True)
-
-import nibabel as nib
 
 case_num = len(test_ds)
 for i in range(case_num):
