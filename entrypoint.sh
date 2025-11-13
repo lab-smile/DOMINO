@@ -23,7 +23,7 @@ Examples:
 
 	train --data_dir /data --num_gpu 1 --model_save_name domino --max_iteration 1000 --spatial_size 64 --json_name dataset_1.json --a_min_value 0 --a_max_value 255 --N_classes 12
 
-	test  --data_dir /data --num_gpu 1 --model_load_name domino.pth --spatial_size 64 --a_min_value 0 --a_max_value 255 --N_classes 12 --data_parallel False --batch_size_test 1
+	test  --data_dir /data --num_gpu 1 --model_load_name domino.pth --spatial_size 64 --a_min_value 0 --a_max_value 255 --N_classes 12 --batch_size_test 1
 USAGE
 }
 
@@ -139,7 +139,6 @@ case "${stage}" in
     A_MIN_VAL=0
     A_MAX_VAL=255
     N_CLASSES=12
-    DATA_PARALLEL="False"
     BATCH_SIZE_TEST=1
     DATASET="dataset_1.json"
     while [[ $# -gt 0 ]]; do
@@ -151,7 +150,6 @@ case "${stage}" in
         --a_min_value)         A_MIN_VAL="$2"; shift 2;;
         --a_max_value)         A_MAX_VAL="$2"; shift 2;;
         --N_classes)         N_CLASSES="$2"; shift 2;;
-        --data_parallel)        DATA_PARALLEL="$2"; shift 2;;
         --batch_size_test)      BATCH_SIZE_TEST="$2"; shift 2;;
         --json_name)         DATASET="$2"; shift 2;;
         *) echo "Unknown arg for test: $1"; usage; exit 1;;
@@ -163,7 +161,7 @@ case "${stage}" in
     CMD=( python "${TEST_SCRIPT}" --data_dir "${TEST_DATA}" --num_gpu "${GPUS}" \
           --model_load_name "${LNAME}" --spatial_size "${SPATIAL_SIZE}"  \
           --a_min_value "${A_MIN_VAL}" --a_max_value "${A_MAX_VAL}" --N_classes "${N_CLASSES}" \
-          --data_parallel "${DATA_PARALLEL}" --batch_size_test "${BATCH_SIZE_TEST}" 
+          --batch_size_test "${BATCH_SIZE_TEST}" 
           --json_name "${DATASET}" )
     echo "[DOMINO] Testing: ${CMD[*]}";
     run_as_owner "${CMD[@]}";;
