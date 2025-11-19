@@ -277,6 +277,15 @@ Prerequisites:
 #### ▶️ Demo Video
 [![DOMINO demo video](https://img.youtube.com/vi/mKeXWM--xyU/hqdefault.jpg)](https://youtu.be/mKeXWM--xyU "Watch the DOMINO demo on YouTube")
 
+## Whole-Head Segmentator (Companion Tool)
+Whole Head Segmentator is a web based tool which will let you test our models like GRACE, DOMINO and DOMINO++ directly on web which any downloads or extra steps, just upload and select which model you are willing to test. It also facilitates the viewing of MRI images in 2D and 3D. 
+_**Disclaimer**: Uploaded volumes are sent to the backend to compute segmentations. Results are not intended for direct clinical decision-making. Do not upload data with direct identifiers or data that violates your data use or ethics agreements._
+
+- Link: https://https://grace-web-tool.vercel.app/
+
+#### Demo Video
+[![Whole Head Segmentator - DOMINO Demo](https://img.youtube.com/vi/VyZLaJNUvZg/hqdefault.jpg)](https://youtu.be/VyZLaJNUvZg "Watch the GRACE demo on YouTube")
+
 ## Citation
 If you use this code, please cite:
 ```
